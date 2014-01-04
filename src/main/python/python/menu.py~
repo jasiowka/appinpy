@@ -1,0 +1,5 @@
+self.menu = gtk.Menu()
+{--menuItems--}
+self.menu.show()
+self.ind.set_menu(self.menu)
+

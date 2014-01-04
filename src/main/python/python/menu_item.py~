@@ -1,0 +1,5 @@
+{--itemId--} = gtk.MenuItem("{--itemText--}")
+{--itemId--}.connect("activate", self.dupa)
+{--itemId--}.show()
+self.menu.append({--itemId--})
+
