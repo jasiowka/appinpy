@@ -1,4 +1,4 @@
 appinpy
 =======
 
-Ubuntu appindicator for Java
+Ubuntu appindicator for Java.
