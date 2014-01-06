@@ -1,5 +1,0 @@
-{--menuId--} = gtk.Menu()
-{--items--}
-{--menuId--}.show()
-{--parentObjectId--}.set_submenu({--menuId--})
-

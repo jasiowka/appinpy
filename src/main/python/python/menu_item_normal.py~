@@ -1,4 +1,0 @@
-{--itemId--} = gtk.MenuItem("{--itemText--}")
-{--itemId--}.show()
-self.menu.append({--itemId--})
-

@@ -29,6 +29,7 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
     private MenuUnity menu;
     private Signals signals;
     private WebServer webServer;
+    private PythonExecutor executor;
 
     {
         loadPythonSnippet("base");
@@ -69,7 +70,11 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
 //            }
 //        }
 //    }
-    
+
+    public void shutdown() {
+    	webServer.shutdown();
+    }
+
     public void setIcon(ImageIcon icon) {
         //
     }
@@ -85,7 +90,9 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
     public void start() {
         deployPython();
         String exePath = tmpFolderPath + tmpFolder + "/appindicator_script.py";
-        //startRpcServer();
+        startRpcServer();
+        executor = new PythonExecutor(exePath);
+        executor.start();
         //Shell.execute(new String[] {"python", exePath});
     }
 

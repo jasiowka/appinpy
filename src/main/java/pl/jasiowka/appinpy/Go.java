@@ -25,11 +25,11 @@ public class Go {
     	String stderr = commandExecutor.getStandardErrorFromCommand();
     	
     	//commandExecutor.eval("echo 'kupa'");
-    	commandExecutor.eval("strwe");
+    	//commandExecutor.eval("strwe");
 
     	// print the output from the command
     	//System.out.println("STDOUT");
-    	System.out.println(stdout);
+    	System.out.println("fdlkjghdkslghfdlsjghfdslkjhdlkfsjghlkdjshg");
     	//System.out.println("STDERR");
     	//System.out.println(stderr);
     	

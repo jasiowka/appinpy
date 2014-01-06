@@ -7,4 +7,9 @@ public class Signals {
         return 0;
     }
 
+    public Integer shutdown() {
+        AppIndicatorUnity.getIndicator().shutdown();
+        return 0;
+    }
+
 }

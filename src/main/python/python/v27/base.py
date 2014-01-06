@@ -11,6 +11,26 @@ import gtk
 import appindicator
 import os
 import xmlrpclib
+import threading
+import SimpleXMLRPCServer
+import time
+
+gtk.gdk.threads_init()
+
+class RPCServerThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.server = SimpleXMLRPCServer.SimpleXMLRPCServer(("localhost", 8003))
+        self.server.register_instance(self)
+        self.quit = False
+    def run(self):
+        while not self.quit:
+            self.server.handle_request()
+            time.sleep(0.1)
+    def shutdown(self):
+        self.quit = True
+        indicator.gtkShutdown()
+        return 0
 
 class AppIndicatorExample:
     def __init__(self):
@@ -20,23 +40,38 @@ class AppIndicatorExample:
         self.ind.set_icon_theme_path(os.path.dirname(os.path.realpath(__file__)))
         self.ind.set_icon("icon")
 
-        self.rpcClient = xmlrpclib.Server('http://localhost:8000')
+        # run RPC server in another thread
+        self.rpcServer = RPCServerThread()
+        self.rpcServer.start()
+
+        # create client to access Java-side
+        self.rpcClientJ = xmlrpclib.Server('http://localhost:8000')
+
+        # create client to access Python-side
+        self.rpcClientP = xmlrpclib.Server('http://localhost:8003')
 
         {--menu--}
 
-        image = gtk.ImageMenuItem(gtk.STOCK_QUIT)
-        image.connect("activate", self.quit)
-        image.show()
-        {--mainMenuId--}.append(image)
+        qItem = gtk.MenuItem("Quit")
+        qItem.connect("activate", self.quit)
+        qItem.show()
+        {--mainMenuId--}.append(qItem)
 
         self.ind.set_menu({--mainMenuId--})
 
     def quit(self, widget, data=None):
         gtk.main_quit()
+        self.rpcClientP.shutdown()
+        return
+    def gtkShutdown(self):
+        gtk.main_quit()
+        return
     {--actions--}
 
 def main():
+    gtk.gdk.threads_enter()
     gtk.main()
+    gtk.gdk.threads_leave()
     return 0
 
 if __name__ == "__main__":
