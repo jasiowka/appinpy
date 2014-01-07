@@ -5,14 +5,14 @@
 # [SNIPPET_AUTHOR: Piotr Jasiowka <www.jasiowka.pl>]
 # [SNIPPET_LICENSE: GPL]
 
+import gtk
 import pygtk
 pygtk.require('2.0')
-import gtk
 import appindicator
-import os
 import xmlrpclib
-import threading
 import SimpleXMLRPCServer
+import os
+import threading
 import time
 
 gtk.gdk.threads_init()
@@ -32,11 +32,11 @@ class RPCServerThread(threading.Thread):
         indicator.gtkShutdown()
         return 0
 
-class AppIndicatorExample:
+class AppinpyScript:
     def __init__(self):
-        self.ind = appindicator.Indicator("example-simple-client", "indicator-messages", appindicator.CATEGORY_APPLICATION_STATUS)
+        self.ind = appindicator.Indicator("appinpy-script", "indicator-messages", appindicator.CATEGORY_APPLICATION_STATUS)
         self.ind.set_status(appindicator.STATUS_ACTIVE)
-        self.ind.set_attention_icon("indicator-messages-new")
+        # search current path for icons (script execution path)
         self.ind.set_icon_theme_path(os.path.dirname(os.path.realpath(__file__)))
         self.ind.set_icon("icon")
 
@@ -44,28 +44,31 @@ class AppIndicatorExample:
         self.rpcServer = RPCServerThread()
         self.rpcServer.start()
 
-        # create client to access Java-side
-        self.rpcClientJ = xmlrpclib.Server('http://localhost:8000')
+        # create RPC client to access Java-side
+        self.rpcClient = xmlrpclib.Server('http://localhost:8000')
 
-        # create client to access Python-side
-        self.rpcClientP = xmlrpclib.Server('http://localhost:8003')
-
+        # menu code here
         {--menu--}
-
         qItem = gtk.MenuItem("Quit")
         qItem.connect("activate", self.quit)
         qItem.show()
         {--mainMenuId--}.append(qItem)
-
         self.ind.set_menu({--mainMenuId--})
 
-    def quit(self, widget, data=None):
-        gtk.main_quit()
-        self.rpcClientP.shutdown()
-        return
     def gtkShutdown(self):
         gtk.main_quit()
         return
+    # quit menu action
+    def quit(self, widget, data=None):
+        # shutdown GTK
+        gtk.main_quit()
+        # shutdown RPC server
+        locrpc = xmlrpclib.Server('http://localhost:8003')
+        locrpc.shutdown()
+        # send signal to clean up Java-side and optionally do some user actions
+        self.rpcClient.Signals.shutdown()
+        return
+    # other menu actions here
     {--actions--}
 
 def main():
@@ -75,6 +78,6 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    indicator = AppIndicatorExample()
+    indicator = AppinpyScript()
     main()
 

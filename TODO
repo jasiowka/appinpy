@@ -1,0 +1,11 @@
+1. obsługa pozycji quit w menu
+2. obsługa listenerów, w tym listenera dla opcji quit
+3. zmiana ikony w locie
+4. pozycje menu z ikoną
+5. obsługa logowania
+6. menu typu check
+7. menu typu radio
+
+zrobione:
+=========
+obsługa rpc i poprawne sprzątanie

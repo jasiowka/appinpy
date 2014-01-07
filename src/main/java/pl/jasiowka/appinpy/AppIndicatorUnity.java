@@ -4,15 +4,19 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
@@ -28,7 +32,8 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
     private ImageIcon icon;
     private MenuUnity menu;
     private Signals signals;
-    private WebServer webServer;
+    private WebServer rpcServer;
+    private XmlRpcClient rpcClient;
     private PythonExecutor executor;
 
     {
@@ -72,7 +77,7 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
 //    }
 
     public void shutdown() {
-    	webServer.shutdown();
+        rpcServer.shutdown();
     }
 
     public void setIcon(ImageIcon icon) {
@@ -87,17 +92,26 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
         }
     }
 
+    @Override
     public void start() {
         deployPython();
         String exePath = tmpFolderPath + tmpFolder + "/appindicator_script.py";
         startRpcServer();
+        createRpcClient();
         executor = new PythonExecutor(exePath);
         executor.start();
-        //Shell.execute(new String[] {"python", exePath});
     }
 
+    @Override
     public void stop() {
-        //
+        try {
+            rpcServer.shutdown();
+            Vector<Object> params = new Vector<Object>();
+            rpcClient.execute("shutdown", params);
+        }
+        catch (XmlRpcException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -165,20 +179,27 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
 
     private void startRpcServer() {
         try {
-            webServer = new WebServer(8000);
-            XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
+            rpcServer = new WebServer(8000);
+            XmlRpcServer xmlRpcServer = rpcServer.getXmlRpcServer();
             PropertyHandlerMapping mapper = new PropertyHandlerMapping();
             mapper.addHandler("Signals", signals.getClass());
             xmlRpcServer.setHandlerMapping(mapper);
-            webServer.start();
+            rpcServer.start();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void stopRpcServer() {
-        webServer.shutdown();
+    private void createRpcClient() {
+        try {
+            XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+		    config.setServerURL(new URL("http://127.0.0.1:8003"));
+		    XmlRpcClient client = new XmlRpcClient();
+	        client.setConfig(config);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

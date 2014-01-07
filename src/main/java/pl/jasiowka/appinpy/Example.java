@@ -71,6 +71,7 @@ public class Example {
         ind.setMenu(menu);
         
         ind.start();
+        System.out.println("Maszyna poszła!!!");
     }
 
 }
