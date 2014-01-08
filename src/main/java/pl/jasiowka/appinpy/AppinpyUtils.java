@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AppinpyUtils {
+class AppinpyUtils {
 
     private static String indentString(int indent) {
         StringBuffer sbuf = new StringBuffer();

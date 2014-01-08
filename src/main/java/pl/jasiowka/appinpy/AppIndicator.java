@@ -1,15 +1,19 @@
 package pl.jasiowka.appinpy;
 
-import javax.swing.ImageIcon;
+//import javax.swing.ImageIcon;
 
 public interface AppIndicator {
 
-    public void setIcon(ImageIcon icon);
+    //void setIcon(ImageIcon icon);
 
-    public void setMenu(Menu menu);
+    void setMenu(Menu menu);
 
-    public void start();
+    void setQuitText(String text);
 
-    public void stop();
+    void setQuitListener(ItemListener listener);
+
+    void start();
+
+    void stop();
 
 }

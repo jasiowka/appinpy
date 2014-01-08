@@ -1,5 +1,5 @@
-1. obsługa pozycji quit w menu
-2. obsługa listenerów, w tym listenera dla opcji quit
++1. obsługa pozycji quit w menu
++2. obsługa listenerów, w tym listenera dla opcji quit
 3. zmiana ikony w locie
 4. pozycje menu z ikoną
 5. obsługa logowania
@@ -9,3 +9,11 @@
 zrobione:
 =========
 obsługa rpc i poprawne sprzątanie
+
+
+
+TESTY
+=====
++1. indykator bez menu
++2. indykator z menu, ale bez żadnych itemów
+3. co jeśli getActionCode() lub getCode() zwraca null?

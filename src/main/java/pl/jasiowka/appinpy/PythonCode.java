@@ -1,6 +1,6 @@
 package pl.jasiowka.appinpy;
 
-public interface PythonCode {
+interface PythonCode {
 
     String getId();
 

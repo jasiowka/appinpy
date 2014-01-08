@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
-public class PythonSnippet {
+class PythonSnippet {
 
     protected static Map<String, String> snippets;
 

@@ -31,6 +31,9 @@ class RPCServerThread(threading.Thread):
         self.quit = True
         indicator.gtkShutdown()
         return 0
+    #def changeIcon(self):
+    #    indicator.ind.set_icon("icon_22x22")
+    #    return 0
 
 class AppinpyScript:
     def __init__(self):
@@ -49,7 +52,7 @@ class AppinpyScript:
 
         # menu code here
         {--menu--}
-        qItem = gtk.MenuItem("Quit")
+        qItem = gtk.MenuItem("{--quitText--}")
         qItem.connect("activate", self.quit)
         qItem.show()
         {--mainMenuId--}.append(qItem)

@@ -32,15 +32,29 @@ class MenuUnity extends PythonSnippet implements PythonCode, Menu {
         return text;
     }
 
-    //public List<MenuItemUnity> getItems() {
-    //    return new ArrayList<MenuItemUnity>();
-        //return items;
-    //}
+    public List<MenuItemUnity> getActionItems() {
+        List<MenuItemUnity> litems = new ArrayList<MenuItemUnity>();
+        for (PythonCode item : items) {
+            if (item instanceof MenuItemUnity) {
+                MenuItemUnity uitem = ((MenuItemUnity) item);
+                if (uitem.getListener() != null);
+                    litems.add(uitem);
+            }
+            else if (item instanceof MenuUnity) {
+                MenuUnity umenu = ((MenuUnity) item);
+                litems.addAll(umenu.getActionItems());
+            }
+        }
+        return litems;
+    }
 
     @Override
     public void add(MenuItem menuItem) {
         if (menuItem != null) {
             if (menuItem instanceof MenuItemUnity) {
+                items.add((PythonCode) menuItem);
+            }
+            else if (menuItem instanceof SeparatorMenuItemUnity) {
                 items.add((PythonCode) menuItem);
             }
         }
@@ -64,6 +78,9 @@ class MenuUnity extends PythonSnippet implements PythonCode, Menu {
             PythonCode item = items.get(itemIndex);
             /* when normal item */
             if (item instanceof MenuItemUnity) {
+                sbuf.append(item.getCode() + "\n");
+            }
+            else if (item instanceof SeparatorMenuItemUnity) {
                 sbuf.append(item.getCode() + "\n");
             }
             /* when submenu */
@@ -92,8 +109,10 @@ class MenuUnity extends PythonSnippet implements PythonCode, Menu {
     public String getActionCode() {
     	StringBuilder sbuf = new StringBuilder();
         for (int itemIndex = 0; itemIndex < items.size(); itemIndex++) {
-        	PythonCode item = items.get(itemIndex);
-            sbuf.append(item.getActionCode() + "\n");
+            PythonCode item = items.get(itemIndex);
+            String acod = item.getActionCode();
+            if (acod != null)
+                sbuf.append(acod + "\n");
         }
         return sbuf.toString();
     }
