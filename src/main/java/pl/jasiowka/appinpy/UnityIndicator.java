@@ -7,11 +7,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
+import javax.naming.InvalidNameException;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.io.FileUtils;
@@ -22,16 +25,14 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
 
-class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicator {
+class UnityIndicator extends PythonSkeleton implements Indicator {
 
     //final Logger logger = LoggerFactory.getLogger(AppIndicatorImpl.class);
-    private String id;
-    private String text;
-	private static AppIndicatorUnity indicator;
+
     private String tmpFolderPath;
     private String tmpFolder;
-    private ImageIcon icon;
-    private MenuUnity menu;
+    private String activeIcon;
+    private UnityMenu menu;
     private Signals signals;
     private WebServer rpcServer;
     private XmlRpcClient rpcClient;
@@ -39,81 +40,85 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
     private String quitText;
     private ItemListener quitListener;
     private boolean working;
+    private Set<String> icons;
 
     {
         loadPythonSnippet("base");
     }
 
-    private AppIndicatorUnity(ImageIcon icon) {
+    private UnityIndicator() {
         //logger.debug("Temperature set to {}. Old temperature was {}.");
         //logger.info("Temperature has risen above 50 degrees.");
-        id = "appindicator" + Sequence.next();
-        text = "AppIndicator";
         tmpFolderPath = "/tmp";
         tmpFolder = "/.appinpy";
-        this.icon = icon;//loadIcon("apple22");
+        createDeployDir();
+        //this.icon = icon;//loadIcon("apple22");
         signals = new Signals();
         quitText = "Quit";
         working = false;
+        icons = new HashSet<String>();
     }
 
-    public static void createIndicator(ImageIcon icon) {
+    public static void createIndicator() {
         if (indicator == null)
-            indicator = new AppIndicatorUnity(icon);
+            indicator = new UnityIndicator();
     }
 
-    public static AppIndicatorUnity getIndicator() {
+    public static UnityIndicator getIndicator() {
         return indicator;
     }
 
     @Override
-    public String getId() {
-        return id;
+    public void addIcon(String name, ImageIcon icon) {
+        if (name == null)
+            throw new NullPointerException("Icon's name can't be null");
+        // TODO else if (!Utils.isCorrectIdentifier(name))
+        //    throw new InvalidNameException("");
+        else if (icon == null)
+            throw new NullPointerException("Can't add null ImageIcon");
+        else if (icons.add(name))
+            exportIcon(name, icon);
     }
 
     @Override
-    public String getText() {
-        return text;
+    public void setActiveIcon(String name) {
+        try {
+            if (icons.contains(name)) {
+                activeIcon = name;
+                if (working) {
+                    Vector<Object> params = new Vector<Object>();
+                    params.add(activeIcon);
+                    rpcClient.execute("changeIcon", params);
+                }
+            }
+        }
+        catch (XmlRpcException e) {
+            e.printStackTrace();
+        }
     }
-
-    //@Override
-    //public void setIcon(ImageIcon icon) {
-        //try {
-        //    this.icon = icon;
-        //    /* if appinpy is working, then redeploy the new icon and send python signal to change it */
-        //    if (working) {
-        //        exportIcon(icon);
-        //        Vector<Object> params = new Vector<Object>();
-        //        rpcClient.execute("changeIcon", params);
-        //    }
-        //}
-        //catch (XmlRpcException e) {
-        //    e.printStackTrace();
-        //}
-    //}
 
     @Override
     public void setMenu(Menu menu) {
         if (menu != null) {
-            if (menu instanceof MenuUnity) {
-                this.menu = (MenuUnity) menu;
+            if (menu instanceof UnityMenu) {
+                this.menu = (UnityMenu) menu;
             }
         }
     }
 
     @Override
     public void start() {
+    	working = true;
         deployPython();
         String exePath = tmpFolderPath + tmpFolder + "/appindicator_script.py";
         startRpcServer();
         createRpcClient();
         executor = new PythonExecutor(exePath);
         executor.start();
-        working = true;
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 if (working)
-                    AppIndicatorUnity.this.stop();
+                    UnityIndicator.this.stop();
             }
         });
     }
@@ -135,13 +140,14 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
         Map<String, String> replacements = new HashMap<String, String>();
         replacements.put("parentObjectId", "self.ind");
         if (menu == null)
-            menu = (MenuUnity) AppinpyFactory.createMenu("MainMenu");
-        String completeMenu = AppinpyUtils.mergeCode(menu.getCode(), replacements, true);
+            menu = (UnityMenu) AppinpyFactory.createMenu("MainMenu");
+        String completeMenu = Utils.mergeCode(menu.getCode(), replacements, true);
         
         replacements.put("menu", completeMenu);
         replacements.put("mainMenuId", menu.getId());
         replacements.put("actions", menu.getActionCode());
         replacements.put("quitText", quitText);
+        replacements.put("startIcon", activeIcon);
         //StringBuffer sbuf = new StringBuffer();
 //        for (PythonCodeGen item : menu.getItems()) {
 //            if (item.getListener() != null) {
@@ -150,7 +156,7 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
 //            }
 //        }
         //replacements.put("actions", sbuf.toString());
-        return AppinpyUtils.mergeCode(snippets.get("base"), replacements, true);
+        return Utils.mergeCode(snippets.get("base"), replacements, true);
         //return menu.getCode() + "\n";
     }
 
@@ -160,7 +166,7 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
     }
 
     @Override
-    public void setQuitText(String text) {
+    public void setQuitLabel(String text) {
         if (text != null)
             this.quitText = quitText;
     }
@@ -170,36 +176,48 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
         this.quitListener = listener;
     }
 
-    private ImageIcon loadIcon(String imageName) {
-        String resourcePath = "images/" + imageName + ".png";
-        URL is = getClass().getClassLoader().getResource(resourcePath);
-        return new ImageIcon(is);
-    }
+    //private ImageIcon loadIcon(String imageName) {
+    //    String resourcePath = "images/" + imageName + ".png";
+    //    URL is = getClass().getClassLoader().getResource(resourcePath);
+    //    return new ImageIcon(is);
+    //}
 
-    private void deployPython() {
+    private void createDeployDir() {
         try {
             // remove old one and create a new temporary folder
             File deployFolder = new File(tmpFolderPath + tmpFolder);
             FileUtils.deleteDirectory(deployFolder);
             boolean result = deployFolder.mkdir();
-            // export python script
-            FileUtils.writeStringToFile(new File(tmpFolderPath + tmpFolder + "/appindicator_script.py"), getCode());
-            // export icon file
-            exportIcon(icon);
+            System.out.println("dir created: " + result);
         }
         catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void exportIcon(ImageIcon icon) {
+    private void deployPython() {
+        try {
+            // remove old one and create a new temporary folder
+            //File deployFolder = new File(tmpFolderPath + tmpFolder);
+            //FileUtils.deleteDirectory(deployFolder);
+            //boolean result = deployFolder.mkdir();
+            // export python script
+            FileUtils.writeStringToFile(new File(tmpFolderPath + tmpFolder + "/appindicator_script.py"), getCode());
+            // export icon file
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void exportIcon(String name, ImageIcon icon) {
         try {
     	// export icon file
         BufferedImage bi = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics g = bi.createGraphics();
         icon.paintIcon(null, g, 0,0);
         g.dispose();
-        File iconFile = new File(tmpFolderPath + tmpFolder + "/icon.png");
+        File iconFile = new File(tmpFolderPath + tmpFolder + "/" + name + ".png");
         ImageIO.write(bi, "png", iconFile);
         }
         catch (IOException e) {
@@ -208,14 +226,22 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
     }
 
     private void itemSelectionSignal(String itemId, boolean checked) {
-        List<MenuItemUnity> items = menu.getActionItems();
-        for (MenuItemUnity item : items) {
-            if (item.getId().equals(itemId)) {
-                ActionInfoUnity ai = new ActionInfoUnity();
-                // nie trzeba ustawiać checkable
-                item.setChecked(checked);
-                ai.setSource(item);
-                item.getListener().onItemSelection(ai);
+        List<ReactableElement> items = menu.getActionItems();
+        for (ReactableElement rel : items) {
+            PythonSkeleton ps = (PythonSkeleton) rel;
+            if (ps.getId().equals(itemId)) {
+                if (rel instanceof CheckItem) {
+                    UnityCheckItem uci = (UnityCheckItem) rel;
+                    uci.setChecked(checked);
+                }
+                else if (rel instanceof UnityRadioItem) {
+                    UnityRadioItem uri = (UnityRadioItem) rel;
+                    UnityRadioGroup urg = (UnityRadioGroup) uri.getGroup();
+                    urg.checkItem(uri);
+                }
+                UnityActionInfo ai = new UnityActionInfo();
+                ai.setSource(rel);
+                rel.getListener().onItemSelection(ai);
             }
         }
     }
@@ -224,7 +250,7 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
         working = false;
         rpcServer.shutdown();
         if (quitListener != null) {
-            ActionInfoUnity ai = new ActionInfoUnity();
+            UnityActionInfo ai = new UnityActionInfo();
             quitListener.onItemSelection(ai);
         }
     }
@@ -232,12 +258,12 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
     public static class Signals {
 
 	    public Integer itemSelection(String itemId, boolean checked) {
-	        AppIndicatorUnity.getIndicator().itemSelectionSignal(itemId, checked);
+	        UnityIndicator.getIndicator().itemSelectionSignal(itemId, checked);
 	        return 0;
 	    }
 
 	    public Integer shutdown() {
-	        AppIndicatorUnity.getIndicator().shutdown();
+	        UnityIndicator.getIndicator().shutdown();
 	        return 0;
 	    }
 

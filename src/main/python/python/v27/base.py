@@ -31,9 +31,9 @@ class RPCServerThread(threading.Thread):
         self.quit = True
         indicator.gtkShutdown()
         return 0
-    #def changeIcon(self):
-    #    indicator.ind.set_icon("icon_22x22")
-    #    return 0
+    def changeIcon(self, name):
+        indicator.ind.set_icon(name)
+        return 0
 
 class AppinpyScript:
     def __init__(self):
@@ -41,7 +41,7 @@ class AppinpyScript:
         self.ind.set_status(appindicator.STATUS_ACTIVE)
         # search current path for icons (script execution path)
         self.ind.set_icon_theme_path(os.path.dirname(os.path.realpath(__file__)))
-        self.ind.set_icon("icon")
+        self.ind.set_icon("{--startIcon--}")
 
         # run RPC server in another thread
         self.rpcServer = RPCServerThread()

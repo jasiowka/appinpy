@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class AppinpyUtils {
+class Utils {
 
     private static String indentString(int indent) {
         StringBuffer sbuf = new StringBuffer();
@@ -46,6 +46,17 @@ class AppinpyUtils {
         }
         matcher.appendTail(sbuf);
         return sbuf.toString();
+    }
+
+    public static boolean isCorrectIdentifier(String identifier) {
+        return identifier.matches("[_a-zA-z]+\\w*");
+    }
+
+    public static String fit(String text) {
+        String txt = text.replace("\"", "\\\"").replace("'", "\\'").replaceAll("[\\n\\r\\t]+", " ").trim();
+        if (txt.length() > 50)
+            txt = txt.substring(0, 50-3) + "...";
+        return txt;
     }
 
 }

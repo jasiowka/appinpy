@@ -1,9 +1,15 @@
 package pl.jasiowka.appinpy;
 
-public interface Menu extends Identity {
+public interface Menu extends LabeledElement {
 
-    void add(MenuItem menuItem);
+    void addItem(Item item);
 
-    void add(Menu menu);
+    void addCheckItem(CheckItem checkItem);
+
+    void addRadioGroup(RadioGroup radioGroup);
+
+    void addSubMenu(Menu subMenu);
+
+    void addSeparator();
 
 }

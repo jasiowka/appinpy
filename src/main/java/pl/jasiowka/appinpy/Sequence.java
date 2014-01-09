@@ -4,8 +4,8 @@ class Sequence {
 
     private static int sequenceHead = -1;
 
-    public static int next() {
-        return ++sequenceHead;
+    public static String next() {
+        return "id" + (++sequenceHead);
     }
 
 }

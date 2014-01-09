@@ -7,14 +7,28 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
-class PythonSnippet {
+abstract class PythonSkeleton implements Element {
 
     protected static Map<String, String> snippets;
+    protected String id;
+    protected static UnityIndicator indicator;
 
     {
         if (snippets == null)
             snippets = new HashMap<String, String>();
     }
+
+    PythonSkeleton() {
+        id = Sequence.next();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public abstract String getCode();
+
+    public abstract String getActionCode();
 
     protected void loadPythonSnippet(String snippetName) {
         if ((snippetName != null) && (!snippets.containsKey(snippetName))) {
