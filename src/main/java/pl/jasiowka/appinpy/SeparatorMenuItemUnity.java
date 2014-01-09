@@ -3,9 +3,7 @@ package pl.jasiowka.appinpy;
 import java.util.HashMap;
 import java.util.Map;
 
-class SeparatorMenuItemUnity extends PythonSnippet implements PythonCode, MenuItem {
-
-    private String id;
+class SeparatorMenuItemUnity extends MenuItemUnity {
 
     {
         loadPythonSnippet("menu_item_sep_create");
@@ -13,12 +11,8 @@ class SeparatorMenuItemUnity extends PythonSnippet implements PythonCode, MenuIt
     }
 
     SeparatorMenuItemUnity() {
+        super(null, null);
         id = "item" + Sequence.next();
-    }
-
-    @Override
-    public String getId() {
-        return id;
     }
 
     @Override
@@ -44,12 +38,18 @@ class SeparatorMenuItemUnity extends PythonSnippet implements PythonCode, MenuIt
     }
 
     @Override
-    public void setListener(ItemListener listener) {
+    public ItemListener getListener() {
+        return null;
     }
 
     @Override
-    public ItemListener getListener() {
-        return null;
+    public boolean isCheckable() {
+        return false;
+    }
+
+    @Override
+    public boolean isChecked() {
+        return false;
     }
 
 }

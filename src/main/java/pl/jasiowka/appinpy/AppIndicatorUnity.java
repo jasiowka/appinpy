@@ -110,12 +110,18 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
         executor = new PythonExecutor(exePath);
         executor.start();
         working = true;
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                if (working)
+                    AppIndicatorUnity.this.stop();
+            }
+        });
     }
 
     @Override
     public void stop() {
         try {
-        	shutdown();
+        	shutdown(); // it also sets working=false
             Vector<Object> params = new Vector<Object>();
             rpcClient.execute("shutdown", params);
         }
@@ -201,11 +207,15 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
         }
     }
 
-    private void itemSelectionSignal(String itemId) {
+    private void itemSelectionSignal(String itemId, boolean checked) {
         List<MenuItemUnity> items = menu.getActionItems();
         for (MenuItemUnity item : items) {
             if (item.getId().equals(itemId)) {
-                item.getListener().onItemSelect();
+                ActionInfoUnity ai = new ActionInfoUnity();
+                // nie trzeba ustawiać checkable
+                item.setChecked(checked);
+                ai.setSource(item);
+                item.getListener().onItemSelection(ai);
             }
         }
     }
@@ -213,14 +223,16 @@ class AppIndicatorUnity extends PythonSnippet implements PythonCode, AppIndicato
     private void shutdown() {
         working = false;
         rpcServer.shutdown();
-        if (quitListener != null)
-            quitListener.onItemSelect();
+        if (quitListener != null) {
+            ActionInfoUnity ai = new ActionInfoUnity();
+            quitListener.onItemSelection(ai);
+        }
     }
 
     public static class Signals {
 
-	    public Integer itemSelection(String itemId) {
-	        AppIndicatorUnity.getIndicator().itemSelectionSignal(itemId);
+	    public Integer itemSelection(String itemId, boolean checked) {
+	        AppIndicatorUnity.getIndicator().itemSelectionSignal(itemId, checked);
 	        return 0;
 	    }
 

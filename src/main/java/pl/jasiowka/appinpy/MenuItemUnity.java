@@ -5,9 +5,10 @@ import java.util.Map;
 
 class MenuItemUnity extends PythonSnippet implements PythonCode, MenuItem {
 
-    private String id;
-    private String text;
-    private ItemListener listener;
+    protected String id;
+    protected String text;
+    protected ItemListener listener;
+    protected boolean checked;
 
     {
         loadPythonSnippet("menu_item_create");
@@ -16,9 +17,11 @@ class MenuItemUnity extends PythonSnippet implements PythonCode, MenuItem {
         loadPythonSnippet("menu_item_exec_action");
     }
 
-    MenuItemUnity(String text) {
+    MenuItemUnity(String text, ItemListener listener) {
         id = "item" + Sequence.next();
         this.text = text;
+        this.listener = listener;
+        checked = false;
     }
 
     @Override
@@ -54,13 +57,22 @@ class MenuItemUnity extends PythonSnippet implements PythonCode, MenuItem {
     }
 
     @Override
-    public void setListener(ItemListener listener) {
-        this.listener = listener;
+    public ItemListener getListener() {
+        return listener;
     }
 
     @Override
-    public ItemListener getListener() {
-        return listener;
+    public boolean isCheckable() {
+        return false;
+    }
+
+    @Override
+    public boolean isChecked() {
+        return false;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 
 }

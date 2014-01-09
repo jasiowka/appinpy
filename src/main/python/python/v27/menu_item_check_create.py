@@ -1,0 +1,2 @@
+{--itemId--} = gtk.CheckMenuItem("{--itemText--}")
+

@@ -1,8 +1,10 @@
 package pl.jasiowka.appinpy;
 
-public interface MenuItem {
+public interface MenuItem extends Identity {
 
-    void setListener(ItemListener listener);
+    boolean isCheckable();
+
+    boolean isChecked();
 
     ItemListener getListener();
 

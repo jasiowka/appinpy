@@ -1,10 +1,6 @@
 package pl.jasiowka.appinpy;
 
-//import javax.swing.ImageIcon;
-
-public interface AppIndicator {
-
-    //void setIcon(ImageIcon icon);
+public interface AppIndicator extends Identity {
 
     void setMenu(Menu menu);
 

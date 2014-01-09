@@ -2,6 +2,6 @@ package pl.jasiowka.appinpy;
 
 public interface ItemListener {
 
-    void onItemSelect();
+    void onItemSelection(ActionInfo info);
 
 }

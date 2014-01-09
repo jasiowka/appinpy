@@ -1,10 +1,6 @@
 package pl.jasiowka.appinpy;
 
-interface PythonCode {
-
-    String getId();
-
-    String getText();
+interface PythonCode extends Identity {
 
     String getCode();
 

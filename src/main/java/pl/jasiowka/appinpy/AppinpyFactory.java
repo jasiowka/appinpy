@@ -14,8 +14,12 @@ public final class AppinpyFactory {
         return new MenuUnity(text);
     }
 
-    public static MenuItem createMenuItem(String text) {
-        return new MenuItemUnity(text);
+    public static MenuItem createMenuItem(String text, ItemListener listener) {
+        return new MenuItemUnity(text, listener);
+    }
+
+    public static MenuItem createCheckMenuItem(String text, ItemListener listener) {
+        return new CheckMenuItemUnity(text, listener);
     }
 
     public static MenuItem createSeparatorMenuItem() {
