@@ -4,7 +4,7 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 
-public class Test {
+class Test {
 
     public static void main(String[] args) {
 
