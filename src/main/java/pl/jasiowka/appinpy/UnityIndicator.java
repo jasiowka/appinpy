@@ -41,6 +41,7 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
     private ItemListener quitListener;
     private boolean working;
     private Set<String> icons;
+    private static ReceivedSignalsPool receivedSignalsPool;
 
     {
         loadPythonSnippet("base");
@@ -108,30 +109,36 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
 
     @Override
     public void start() {
-    	working = true;
-        deployPython();
-        String exePath = tmpFolderPath + tmpFolder + "/appindicator_script.py";
-        startRpcServer();
-        createRpcClient();
-        executor = new PythonExecutor(exePath);
-        executor.start();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                if (working)
-                    UnityIndicator.this.stop();
-            }
-        });
+        if (!working) {
+    	    working = true;
+            deployPython();
+            String exePath = tmpFolderPath + tmpFolder + "/appindicator_script.py";
+            startRpcServer();
+            createRpcClient();
+            receivedSignalsPool = new ReceivedSignalsPool();
+            receivedSignalsPool.start();
+            executor = new PythonExecutor(exePath);
+            executor.start();
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    if (working)
+                        UnityIndicator.this.stop();
+                }
+            });
+        }
     }
 
     @Override
     public void stop() {
-        try {
-        	shutdown(); // it also sets working=false
-            Vector<Object> params = new Vector<Object>();
-            rpcClient.execute("shutdown", params);
-        }
-        catch (XmlRpcException e) {
-            e.printStackTrace();
+        if (working) {
+            try {
+                shutdown(); // it also sets working=false
+                Vector<Object> params = new Vector<Object>();
+                rpcClient.execute("shutdown", params);
+            }
+            catch (XmlRpcException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -253,17 +260,25 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
             UnityActionInfo ai = new UnityActionInfo();
             quitListener.onItemSelection(ai);
         }
+        receivedSignalsPool.stopQueue();
     }
 
     public static class Signals {
 
 	    public Integer itemSelection(String itemId, boolean checked) {
-	        UnityIndicator.getIndicator().itemSelectionSignal(itemId, checked);
+	        final String iId = itemId;
+	        final boolean chkd = checked;
+	        receivedSignalsPool.enqueue(new SignalAction() {
+                @Override
+                public void doAction() {
+                    indicator.itemSelectionSignal(iId, chkd);
+                }
+	        });
 	        return 0;
 	    }
 
 	    public Integer shutdown() {
-	        UnityIndicator.getIndicator().shutdown();
+	        indicator.shutdown();
 	        return 0;
 	    }
 
@@ -289,9 +304,54 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
 		    config.setServerURL(new URL("http://127.0.0.1:8003"));
 		    rpcClient = new XmlRpcClient();
 		    rpcClient.setConfig(config);
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             e.printStackTrace();
         }
+    }
+
+    interface SignalAction {
+
+        void doAction();
+
+    }
+
+    private class ReceivedSignalsPool extends Thread {
+
+        private Vector<SignalAction> queue;
+        private boolean running;
+
+        ReceivedSignalsPool() {
+            queue = new Vector<SignalAction>();
+        }
+
+        public void run() {
+            synchronized(this) {
+                try {
+                    running = true;
+                    while (running || (queue.size() > 0)) {
+                        if (queue.size() > 0) {
+                            queue.get(0).doAction();
+                            queue.remove(0);
+                        }
+                        wait(10);
+                    }
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void enqueue(SignalAction action) {
+            if (running)
+                queue.add(action);
+        }
+
+        public void stopQueue() {
+            running = false;
+        }
+
     }
 
 }

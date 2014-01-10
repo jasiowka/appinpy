@@ -1,5 +1,7 @@
 package pl.jasiowka.appinpy;
 
+import java.util.Vector;
+
 import javax.swing.ImageIcon;
 
 public class Test {
@@ -58,8 +60,20 @@ public class Test {
         menu.addSeparator();
         ind.setMenu(menu);
 
-        System.out.print(ind.getCode());
+        //System.out.print(ind.getCode());
         //System.out.print(group.getActionCode());
+        
+        Vector<String> v = new Vector<String>();
+        v.add("a");
+        v.add("b");
+        v.add("c");
+        v.add("d");
+        v.add("e");
+        for (int i = 0; i < 5; i++) {
+            System.out.print(v.get(0));
+            v.remove(0);
+        }
+        
     }
 
 }
