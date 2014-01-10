@@ -8,4 +8,4 @@ TODO
    (The goal is that python won't need to wait for the method finish at java side.
    It only sends Java signal to enqueue the method invocation and that's all.
    Special Java thread carries about all the rest. It should allow sending signals
-   to python from java onItemSelection() method).
+   to python from java onItemSelection() method)
