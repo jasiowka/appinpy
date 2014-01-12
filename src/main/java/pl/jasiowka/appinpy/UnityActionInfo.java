@@ -2,14 +2,14 @@ package pl.jasiowka.appinpy;
 
 class UnityActionInfo implements ActionInfo {
 
-    private Object source; 
+    private Item source; 
 
     @Override
-    public Object getSource() {
+    public Item getSource() {
         return source;
     }
 
-    public void setSource(Object source) {
+    public void setSource(Item source) {
         this.source = source;
     }
 

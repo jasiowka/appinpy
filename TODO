@@ -2,7 +2,7 @@ TODO
 
 1. logging
 2. enhance exceptions handling
-3. interactivity (making menu items check/uncheck/show/hide/enable/disable/change label from java)
++3. interactivity (making menu items check/uncheck/show/hide/enable/disable/change label from java)
 4. add icon handling to the regular menu
 +5. do sth like a buffer for RPC methods invoked by python at java side
    (The goal is that python won't need to wait for the method finish at java side.
@@ -10,3 +10,5 @@ TODO
    Special Java thread carries about all the rest. It should allow sending signals
    to python from java onItemSelection() method).
 6. patch Utils.fit()
+7. Support for Python v3.x
+8. Support for Win

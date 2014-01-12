@@ -1,2 +1,2 @@
-{--itemId--} = gtk.RadioMenuItem({--groupId--}, "{--itemLabel--}")
+self.{--itemId--} = gtk.RadioMenuItem({--groupId--}, "{--itemLabel--}")
 

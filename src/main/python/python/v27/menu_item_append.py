@@ -1,3 +1,3 @@
-{--itemId--}.show()
-{--parentMenuId--}.append({--itemId--})
+self.{--itemId--}.show()
+self.{--parentMenuId--}.append(self.{--itemId--})
 

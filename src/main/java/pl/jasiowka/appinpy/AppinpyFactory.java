@@ -12,8 +12,8 @@ public final class AppinpyFactory {
         return new UnityMenu(text);
     }
 
-    public static Item createItem(String label) {
-        return new UnityItem(label);
+    public static RegularItem createItem(String label) {
+        return new UnityRegularItem(label);
     }
 
     public static CheckItem createCheckItem(String label) {

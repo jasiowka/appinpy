@@ -7,6 +7,10 @@ import java.util.Map;
 
 class UnityRadioGroup extends PythonSkeleton implements RadioGroup {
 
+    {
+        loadPythonSnippet("menu_item_radio_create");
+    }
+
     protected List<UnityRadioItem> items;
     protected UnityRadioItem checkedItem;
 
@@ -26,7 +30,7 @@ class UnityRadioGroup extends PythonSkeleton implements RadioGroup {
                 String code = item.getCode();
                 if (idx == 0) {
                     replacements.put("groupId", groupId);
-                    groupId = item.getId();
+                    groupId = "self." + item.getId();
                     code = Utils.mergeCode(code, replacements, true);
                 }
                 sbuf.append(code + "\n");
@@ -38,16 +42,29 @@ class UnityRadioGroup extends PythonSkeleton implements RadioGroup {
     }
 
     @Override
-    public String getActionCode() {
+    public String getMenuActionCode() {
         String allActionCode = null;
         StringBuilder sbuf = new StringBuilder();
         for (UnityRadioItem item : items) {
-            String singleActionCode = item.getActionCode();
+            String singleActionCode = item.getMenuActionCode();
             if (singleActionCode != null)
                 sbuf.append(singleActionCode + "\n");
         }
         allActionCode = sbuf.toString();
         return allActionCode.length() > 0 ? allActionCode.replaceAll("\\s+$", "") : null;
+    }
+
+    @Override
+    public String getJavaActionsCode() {
+        String allJavaActionsCode = null;
+        StringBuilder sbuf = new StringBuilder();
+        for (UnityRadioItem item : items) {
+            String singleJavaActionsCode = item.getJavaActionsCode();
+            if (singleJavaActionsCode != null)
+                sbuf.append(singleJavaActionsCode + "\n");
+        }
+        allJavaActionsCode = sbuf.toString();
+        return allJavaActionsCode.length() > 0 ? allJavaActionsCode.replaceAll("\\s+$", "") : null;
     }
 
     @Override

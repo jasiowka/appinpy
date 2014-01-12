@@ -3,19 +3,24 @@ package pl.jasiowka.appinpy;
 import java.util.HashMap;
 import java.util.Map;
 
-class UnityItem extends PythonSkeleton implements Item {
+import pl.jasiowka.appinpy.UnityIndicator.ItemAction;
 
-    protected String label;
-    protected ItemListener listener;
+class UnityRegularItem extends PythonSkeleton implements RegularItem {
 
     {
         loadPythonSnippet("menu_item_create");
         loadPythonSnippet("menu_item_add_action");
         loadPythonSnippet("menu_item_append");
         loadPythonSnippet("menu_item_exec_action");
+        loadPythonSnippet("java_actions");
     }
 
-    UnityItem(String label) {
+    protected String label;
+    protected boolean enabled;
+    protected boolean visible;
+    protected ItemListener listener;
+
+    UnityRegularItem(String label) {
         setLabel(label);
     }
 
@@ -27,7 +32,38 @@ class UnityItem extends PythonSkeleton implements Item {
     @Override
     public void setLabel(String label) {
         this.label = Utils.fit(label);
-        // TODO send signal
+        // send signal
+        indicator.doItemAction(id, ItemAction.SET_LABEL, label);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        // send signal
+        if (enabled)
+            indicator.doItemAction(id, ItemAction.ENABLE, null);
+        else
+            indicator.doItemAction(id, ItemAction.DISABLE, null);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return visible;
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+        // send signal
+        if (visible)
+            indicator.doItemAction(id, ItemAction.SHOW, null);
+        else
+            indicator.doItemAction(id, ItemAction.HIDE, null);
     }
 
     @Override
@@ -54,7 +90,7 @@ class UnityItem extends PythonSkeleton implements Item {
     }
 
     @Override
-    public String getActionCode() {
+    public String getMenuActionCode() {
         String actionCode = null;
         if (listener != null) {
             Map<String, String> replacements = new HashMap<String, String>();
@@ -62,6 +98,14 @@ class UnityItem extends PythonSkeleton implements Item {
             actionCode = Utils.mergeCode(snippets.get("menu_item_exec_action"), replacements, true);
         }
         return actionCode;
+    }
+
+    @Override
+    public String getJavaActionsCode() {
+        Map<String, String> replacements = new HashMap<String, String>();
+        replacements.put("itemId", id);
+        replacements.put("javaCheckActions", "");
+        return Utils.mergeCode(snippets.get("java_actions"), replacements, true).replaceAll("\\s+$", "");
     }
 
 }

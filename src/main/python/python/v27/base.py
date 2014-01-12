@@ -34,6 +34,9 @@ class RPCServerThread(threading.Thread):
     def changeIcon(self, name):
         indicator.ind.set_icon(name)
         return 0
+    def doItemAction(self, item, action, param):
+        indicator.doItemAction(item, action, param)
+        return 0
 
 class AppinpyScript:
     def __init__(self):
@@ -52,11 +55,11 @@ class AppinpyScript:
 
         # menu code here
         {--menu--}
-        qItem = gtk.MenuItem("{--quitText--}")
-        qItem.connect("activate", self.quit)
-        qItem.show()
-        {--mainMenuId--}.append(qItem)
-        self.ind.set_menu({--mainMenuId--})
+        self.qItem = gtk.MenuItem("{--quitText--}")
+        self.qItem.connect("activate", self.quit)
+        self.qItem.show()
+        self.{--mainMenuId--}.append(self.qItem)
+        self.ind.set_menu(self.{--mainMenuId--})
 
     def gtkShutdown(self):
         gtk.main_quit()
@@ -73,6 +76,10 @@ class AppinpyScript:
         return
     # other menu actions here
     {--actions--}
+    # menu items runtime changes invoked by java
+    def doItemAction(self, item, action, param):
+        {--javaActions--}
+        return 0
 
 def main():
     gtk.gdk.threads_enter()

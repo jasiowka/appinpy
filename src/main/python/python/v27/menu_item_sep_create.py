@@ -1,2 +1,2 @@
-{--itemId--} = gtk.SeparatorMenuItem()
+self.{--itemId--} = gtk.SeparatorMenuItem()
 

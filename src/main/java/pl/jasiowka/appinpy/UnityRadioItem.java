@@ -3,6 +3,8 @@ package pl.jasiowka.appinpy;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.jasiowka.appinpy.UnityIndicator.ItemAction;
+
 class UnityRadioItem extends PythonSkeleton implements RadioItem {
 
     {
@@ -10,9 +12,13 @@ class UnityRadioItem extends PythonSkeleton implements RadioItem {
         loadPythonSnippet("menu_item_add_action");
         loadPythonSnippet("menu_item_append");
         loadPythonSnippet("menu_item_radio_exec_action");
+        loadPythonSnippet("java_actions");
+        loadPythonSnippet("java_check_actions");
     }
 
     protected String label;
+    protected boolean enabled;
+    protected boolean visible;
     protected ItemListener listener;
     protected boolean checked;
     protected UnityRadioGroup group;
@@ -29,7 +35,38 @@ class UnityRadioItem extends PythonSkeleton implements RadioItem {
     @Override
     public void setLabel(String label) {
         this.label = Utils.fit(label);
-        // TODO send signal
+        // send signal
+        indicator.doItemAction(id, ItemAction.SET_LABEL, label);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        // send signal
+        if (enabled)
+            indicator.doItemAction(id, ItemAction.ENABLE, null);
+        else
+            indicator.doItemAction(id, ItemAction.DISABLE, null);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return visible;
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+        // send signal
+        if (visible)
+            indicator.doItemAction(id, ItemAction.SHOW, null);
+        else
+            indicator.doItemAction(id, ItemAction.HIDE, null);
     }
 
     @Override
@@ -53,7 +90,8 @@ class UnityRadioItem extends PythonSkeleton implements RadioItem {
             throw new NullPointerException("Item not assigned to group, can't change 'checked' property");
         else if (!checked) {
             group.checkItem(this);
-            // TODO send signal
+            // send signal
+            indicator.doItemAction(id, ItemAction.CHECK, null);
         }
     }
 
@@ -79,7 +117,7 @@ class UnityRadioItem extends PythonSkeleton implements RadioItem {
     }
 
     @Override
-    public String getActionCode() {
+    public String getMenuActionCode() {
         String actionCode = null;
         if (listener != null) {
             Map<String, String> replacements = new HashMap<String, String>();
@@ -87,6 +125,15 @@ class UnityRadioItem extends PythonSkeleton implements RadioItem {
             actionCode = Utils.mergeCode(snippets.get("menu_item_radio_exec_action"), replacements, true);
         }
         return actionCode;
+    }
+
+    @Override
+    public String getJavaActionsCode() {
+        Map<String, String> replacements = new HashMap<String, String>();
+        replacements.put("javaCheckActions", snippets.get("java_check_actions"));
+        String all = Utils.mergeCode(snippets.get("java_actions"), replacements, true);
+        replacements.put("itemId", id);
+        return Utils.mergeCode(all, replacements, true);
     }
 
     @Override

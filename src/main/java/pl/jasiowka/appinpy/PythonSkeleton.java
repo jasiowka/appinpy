@@ -28,7 +28,9 @@ abstract class PythonSkeleton implements Element {
 
     public abstract String getCode();
 
-    public abstract String getActionCode();
+    public abstract String getMenuActionCode();
+
+    public abstract String getJavaActionsCode();
 
     protected void loadPythonSnippet(String snippetName) {
         if ((snippetName != null) && (!snippets.containsKey(snippetName))) {

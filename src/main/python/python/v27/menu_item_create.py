@@ -1,2 +1,2 @@
-{--itemId--} = gtk.MenuItem("{--itemText--}")
+self.{--itemId--} = gtk.MenuItem("{--itemText--}")
 

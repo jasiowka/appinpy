@@ -1,4 +1,4 @@
-{--menuId--} = gtk.Menu()
+self.{--menuId--} = gtk.Menu()
 {--items--}
-{--menuId--}.show()
+self.{--menuId--}.show()
 

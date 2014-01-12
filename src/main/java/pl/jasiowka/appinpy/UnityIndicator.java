@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
-import javax.naming.InvalidNameException;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.io.FileUtils;
@@ -125,6 +124,11 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
                         UnityIndicator.this.stop();
                 }
             });
+            try {
+				Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -152,9 +156,10 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
         
         replacements.put("menu", completeMenu);
         replacements.put("mainMenuId", menu.getId());
-        replacements.put("actions", menu.getActionCode());
+        replacements.put("actions", menu.getMenuActionCode());
         replacements.put("quitText", quitText);
         replacements.put("startIcon", activeIcon);
+        replacements.put("javaActions", menu.getJavaActionsCode());
         //StringBuffer sbuf = new StringBuffer();
 //        for (PythonCodeGen item : menu.getItems()) {
 //            if (item.getListener() != null) {
@@ -168,7 +173,12 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
     }
 
     @Override
-    public String getActionCode() {
+    public String getMenuActionCode() {
+        return null;
+    }
+
+    @Override
+    public String getJavaActionsCode() {
         return null;
     }
 
@@ -233,8 +243,8 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
     }
 
     private void itemSelectionSignal(String itemId, boolean checked) {
-        List<ReactableElement> items = menu.getActionItems();
-        for (ReactableElement rel : items) {
+        List<Item> items = menu.getActionItems();
+        for (Item rel : items) {
             PythonSkeleton ps = (PythonSkeleton) rel;
             if (ps.getId().equals(itemId)) {
                 if (rel instanceof CheckItem) {
@@ -352,6 +362,41 @@ class UnityIndicator extends PythonSkeleton implements Indicator {
             running = false;
         }
 
+    }
+
+    public enum ItemAction { ENABLE, DISABLE, SHOW, HIDE, CHECK, UNCHECK, SET_LABEL }
+
+    public void doItemAction(String itemId, ItemAction action, String label) {
+    	if (working) {
+            Vector<Object> params = new Vector<Object>();
+            params.add(itemId);
+            switch (action) {
+                case ENABLE: params.add("enable"); break;
+                case DISABLE: params.add("disable"); break;
+                case SHOW: params.add("show"); break;
+                case HIDE: params.add("hide"); break;
+                case CHECK: params.add("check"); break;
+                case UNCHECK: params.add("uncheck"); break;
+                case SET_LABEL: params.add("set_label"); break;
+            }
+            if (action == ItemAction.SET_LABEL)
+                params.add(label);
+            else
+                params.add("empty");
+            sendSignal("doItemAction", params);
+        }
+    }
+
+    private void sendSignal(String methodName, Vector<Object> params) {
+        try {
+            rpcClient.execute(methodName, params);
+        } catch (XmlRpcException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isWorking() {
+        return working;
     }
 
 }

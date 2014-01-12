@@ -1,3 +1,3 @@
-{--itemId--}.connect("activate", self.{--itemId--}Action)
+self.{--itemId--}.connect("activate", self.{--itemId--}Action)
 
 

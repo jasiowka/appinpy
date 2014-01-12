@@ -1,6 +1,6 @@
 package pl.jasiowka.appinpy;
 
-interface CheckableElement extends ReactableElement {
+interface CheckableElement extends Item {
 
     boolean isChecked();
 

@@ -26,7 +26,12 @@ class UnitySeparatorItem extends PythonSkeleton implements Element {
     }
 
     @Override
-    public String getActionCode() {
+    public String getMenuActionCode() {
+        return null;
+    }
+
+    @Override
+    public String getJavaActionsCode() {
         return null;
     }
 

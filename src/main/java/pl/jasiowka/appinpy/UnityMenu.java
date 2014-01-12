@@ -31,10 +31,10 @@ class UnityMenu extends PythonSkeleton implements Menu {
     }
 
     @Override
-    public void addItem(Item item) {
+    public void addItem(RegularItem item) {
         if (item == null)
             throw new NullPointerException("Can't add null MenuItem");
-        else if (item instanceof UnityItem)
+        else if (item instanceof UnityRegularItem)
             items.add((Element) item);
         else
             throw new ClassCastException("UnityMenu.addItem() needs UnityItem class instance passed as a parameter");
@@ -76,11 +76,11 @@ class UnityMenu extends PythonSkeleton implements Menu {
         items.add((Element) usi);
     }
 
-    public List<ReactableElement> getActionItems() {
-        List<ReactableElement> litems = new ArrayList<ReactableElement>();
+    public List<Item> getActionItems() {
+        List<Item> litems = new ArrayList<Item>();
         for (Element item : items) {
-            if (item instanceof ReactableElement) {
-            	ReactableElement rel = ((ReactableElement) item);
+            if (item instanceof Item) {
+            	Item rel = ((Item) item);
                 if (rel.getListener() != null);
                     litems.add(rel);
             }
@@ -107,8 +107,8 @@ class UnityMenu extends PythonSkeleton implements Menu {
         for (int itemIndex = 0; itemIndex < items.size(); itemIndex++) {
             Element item = items.get(itemIndex);
             /* when normal item */
-            if (item instanceof UnityItem) {
-            	UnityItem ui = (UnityItem) item;
+            if (item instanceof UnityRegularItem) {
+            	UnityRegularItem ui = (UnityRegularItem) item;
                 sbuf.append(ui.getCode() + "\n");
             }
             /* when checkitem */
@@ -149,17 +149,31 @@ class UnityMenu extends PythonSkeleton implements Menu {
     }
 
     @Override
-    public String getActionCode() {
+    public String getMenuActionCode() {
         String allActionCode = null;
         StringBuilder sbuf = new StringBuilder();
         for (Element item : items) {
             PythonSkeleton ps = (PythonSkeleton) item;
-            String singleActionCode = ps.getActionCode();
+            String singleActionCode = ps.getMenuActionCode();
             if (singleActionCode != null)
                 sbuf.append(singleActionCode + "\n");
         }
         allActionCode = sbuf.toString();
         return allActionCode.length() > 0 ? allActionCode.replaceAll("\\s+$", "") : null;
+    }
+
+    @Override
+    public String getJavaActionsCode() {
+        String allJavaActionsCode = null;
+        StringBuilder sbuf = new StringBuilder();
+        for (Element item : items) {
+            PythonSkeleton ps = (PythonSkeleton) item;
+            String singleJavaActionsCode = ps.getJavaActionsCode();
+            if (singleJavaActionsCode != null)
+                sbuf.append(singleJavaActionsCode + "\n");
+        }
+        allJavaActionsCode = sbuf.toString();
+        return allJavaActionsCode.length() > 0 ? allJavaActionsCode.replaceAll("\\s+$", "") : null;
     }
 
 }

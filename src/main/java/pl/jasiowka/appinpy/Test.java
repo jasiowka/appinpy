@@ -28,7 +28,7 @@ class Test {
         CheckItem item = AppinpyFactory.createCheckItem("Apple");
         item.setListener(listener);
         menu.addCheckItem(item);
-        Item item2 = AppinpyFactory.createItem("Strawberry");
+        RegularItem item2 = AppinpyFactory.createItem("Strawberry");
         item2.setListener(listener);
         menu.addItem(item2);
 

@@ -1,5 +1,5 @@
-{--subMenuId--} = gtk.MenuItem("{--menuText--}")
-{--subMenuId--}.show()
-{--subMenuId--}.set_submenu({--menuId--})
-{--parentMenuId--}.append({--subMenuId--})
+self.{--subMenuId--} = gtk.MenuItem("{--menuText--}")
+self.{--subMenuId--}.show()
+self.{--subMenuId--}.set_submenu(self.{--menuId--})
+self.{--parentMenuId--}.append(self.{--subMenuId--})
 
