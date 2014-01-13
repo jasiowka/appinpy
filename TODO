@@ -10,5 +10,11 @@ TODO
    Special Java thread carries about all the rest. It should allow sending signals
    to python from java onItemSelection() method).
 6. patch Utils.fit()
-7. Support for Python v3.x
+7. Support for Python v3.x (needs rewrite from PyGTK to PyGI)
 8. Support for Win
+9. key bindings handling
+10. 
+
+
++Check out if it's possible to send signal (show/hide etc.) from onItemSelection() !!
+------------------------------------------------------------------------------------
