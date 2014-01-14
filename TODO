@@ -11,6 +11,7 @@ TODO
    to python from java onItemSelection() method).
 6. patch Utils.fit()
 7. Support for Python v3.x (needs rewrite from PyGTK to PyGI)
+   or.. use GLADE and XML to construct GUI, but then rewrite all code.. worth thinking !
 8. Support for Win
 9. key bindings handling
 10. 
